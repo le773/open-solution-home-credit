@@ -83,12 +83,38 @@ class XGBoost(BaseTransformer):
     def persist(self, filepath):
         self.estimator.save_model(filepath)
 
+# Params
+# {'device': 'cpu',
+# 'boosting_type': 'gbdt',
+# 'objective': 'binary',
+# 'metric': 'auc',
+# 'is_unbalance': False,
+# 'scale_pos_weight': 1.0,
+# 'learning_rate': 0.02,
+# 'max_bin': 300,
+# 'max_depth': -1,
+# 'num_leaves': 42,
+# 'min_child_samples': 70,
+# 'subsample': 1.0,
+# 'colsample_bytree': 0.03,
+# 'subsample_freq': 1,
+# 'min_gain_to_split': 0.5,
+# 'reg_lambda': 100.0,
+# 'reg_alpha': 0.0,
+# 'nthread': 8,
+# 'number_boosting_rounds': 5000,
+# 'early_stopping_rounds': 100,
+# 'verbose': 1,
+# 'callbacks_on': 1
+# }
 
 class LightGBM(BaseTransformer):
     def __init__(self, name=None, **params):
         super().__init__()
         logger.info('initializing LightGBM...')
         self.params = params
+        # logger.info('self.params')
+        # logger.info(self.params)
         self.training_params = ['number_boosting_rounds', 'early_stopping_rounds']
         self.evaluation_function = None
         if params['callbacks_on']:
@@ -126,13 +152,13 @@ class LightGBM(BaseTransformer):
         logger.info('LightGBM, train labels shape      {}'.format(y.shape))
         logger.info('LightGBM, validation labels shape {}'.format(y_valid.shape))
 
-        data_train = lgb.Dataset(data=X,
-                                 label=y,
+        data_train = lgb.Dataset(data=X[0:10000],
+                                 label=y[0:10000],
                                  feature_name=feature_names,
                                  categorical_feature=categorical_features,
                                  **kwargs)
-        data_valid = lgb.Dataset(X_valid,
-                                 label=y_valid,
+        data_valid = lgb.Dataset(X_valid[0:2000],
+                                 label=y_valid[0:2000],
                                  feature_name=feature_names,
                                  categorical_feature=categorical_features,
                                  **kwargs)
@@ -207,8 +233,8 @@ class CatBoost(BaseTransformer):
         logger.info('Catboost, validation labels shape {}'.format(y_valid.shape))
 
         categorical_indeces = self._get_categorical_indeces(feature_names, categorical_features)
-        self.estimator.fit(X, y,
-                           eval_set=(X_valid, y_valid),
+        self.estimator.fit(X[0:5000], y[0:5000],
+                           eval_set=(X_valid[0:1000], y_valid[0:1000]),
                            cat_features=categorical_indeces)
         return self
 
@@ -290,7 +316,7 @@ class NeuralNetwork(ClassifierXY):
     def fit(self, X, y, validation_data, *args, **kwargs):
         self.callbacks = self._create_callbacks()
         self.model = self._compile_model(input_shape=(X.shape[1], ))
-        self.model.fit(X, y,
+        self.model.fit(X[0:5000], y[0:5000],
                        validation_data=validation_data,
                        verbose=1,
                        callbacks=self.callbacks,

@@ -1,0 +1,16 @@
+pipelines::light_gbm
+    blocks::feature_extraction
+        _application_cleaning
+        _application
+        _application_groupby_agg
+        _application_categorical_encoder
+        _join_features(numerical_features, categorical_features) +241
+            feature_extraction::FeatureJoiner
+                outputs = dict()
+                outputs['features'] = features
+                outputs['feature_names'] = list(features.columns)
+                outputs['categorical_features'] = self._get_feature_names(categorical_feature_list)
+                return outputs
+        _split_samples
+    blocks::classifier_light_gbm
+        class LightGBM

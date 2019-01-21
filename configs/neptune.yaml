@@ -1,4 +1,4 @@
-project: ORGANIZATION/home-credit
+project: le773/home-credit
 
 name: home-credit-default-risk
 tags: [solution-6]
@@ -19,17 +19,17 @@ exclude:
 
 parameters:
 # Data
-  train_filepath:                  YOUR/PATH/TO/application_train.csv
-  test_filepath:                   YOUR/PATH/TO/application_test.csv
-  bureau_balance_filepath:         YOUR/PATH/TO/bureau_balance.csv
-  bureau_filepath:                 YOUR/PATH/TO/bureau.csv
-  credit_card_balance_filepath:    YOUR/PATH/TO/credit_card_balance.csv
-  installments_payments_filepath:  YOUR/PATH/TO/installments_payments.csv
-  POS_CASH_balance_filepath:       YOUR/PATH/TO/POS_CASH_balance.csv
-  previous_application_filepath:   YOUR/PATH/TO/previous_application.csv
-  sample_submission_filepath:      YOUR/PATH/TO/sample_submission.csv
-  first_level_oof_predictions_dir: YOUR/PATH/TO/oof_predictions
-  experiment_directory:            YOUR/PATH/WORKDIR
+  train_filepath:                  HomeCreditDefaultRisk/application_train.csv
+  test_filepath:                   HomeCreditDefaultRisk/application_test.csv
+  bureau_balance_filepath:         HomeCreditDefaultRisk/bureau_balance.csv
+  bureau_filepath:                 HomeCreditDefaultRisk/bureau.csv
+  credit_card_balance_filepath:    HomeCreditDefaultRisk/credit_card_balance.csv
+  installments_payments_filepath:  HomeCreditDefaultRisk/installments_payments.csv
+  POS_CASH_balance_filepath:       HomeCreditDefaultRisk/POS_CASH_balance.csv
+  previous_application_filepath:   HomeCreditDefaultRisk/previous_application.csv
+  sample_submission_filepath:      HomeCreditDefaultRisk/sample_submission.csv
+  first_level_oof_predictions_dir: HomeCreditDefaultRisk/oof_predictions
+  experiment_directory:            .
 
 # Kaggle
   kaggle_api: 0
@@ -40,8 +40,8 @@ parameters:
   validation_size: 0.2
   stratified_cv: True
   shuffle: 1
-  hyperparameter_search__method: None
-  hyperparameter_search__runs: 0
+  hyperparameter_search__method: random
+  hyperparameter_search__runs: 100
 
   # Execution
   clean_experiment_directory_before_training: 1
@@ -74,21 +74,21 @@ parameters:
   use_application: True
   use_bureau: True
   use_bureau_balance: True
-  use_credit_card_balance: True
-  use_installments_payments: True
-  use_pos_cash_balance: True
-  use_previous_applications: True
+  use_credit_card_balance: False
+  use_installments_payments: False
+  use_pos_cash_balance: False
+  use_previous_applications: False
   use_application_previous_applications: False
 
-  use_application_aggregations: True
-  use_bureau_aggregations: True
-  use_credit_card_balance_aggregations: True
-  use_installments_payments_aggregations: True
-  use_pos_cash_balance_aggregations: True
-  use_previous_applications_aggregations: True
+  use_application_aggregations: False
+  use_bureau_aggregations: False
+  use_credit_card_balance_aggregations: False
+  use_installments_payments_aggregations: False
+  use_pos_cash_balance_aggregations: False
+  use_previous_applications_aggregations: False
 
-  use_application_categorical_features: True
-  use_previous_application_categorical_features: True
+  use_application_categorical_features: False
+  use_previous_application_categorical_features: False
   use_application_previous_application_categorical_features: False
 
 # Light GBM

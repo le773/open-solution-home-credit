@@ -41,8 +41,9 @@ class PipelineManager:
 def train(pipeline_name, dev_mode):
     logger.info('TRAINING')
     if bool(params.clean_experiment_directory_before_training) and os.path.isdir(params.experiment_directory):
-        logger.info('Cleaning experiment_directory...')
-        shutil.rmtree(params.experiment_directory)
+        if os.path.exists(params.experiment_directory):
+            logger.info('Cleaning experiment_directory...')
+            # shutil.rmtree(params.experiment_directory)
 
     tables = _read_data(dev_mode)
 
@@ -59,7 +60,8 @@ def train(pipeline_name, dev_mode):
 
     train_data = {'main_table': {'X': train_data_split.drop(cfg.TARGET_COLUMNS, axis=1),
                                  'y': train_data_split[cfg.TARGET_COLUMNS].values.reshape(-1),
-                                 'X_valid': valid_data_split.drop[cfg.TARGET_COLUMNS].values.reshape(-1),
+                                 #'X_valid': valid_data_split.drop([cfg.TARGET_COLUMNS].values.reshape(-1)),
+                                 'X_valid': valid_data_split.drop(cfg.TARGET_COLUMNS, axis=1),
                                  'y_valid': valid_data_split[cfg.TARGET_COLUMNS].values.reshape(-1),
                                  },
                   'application': {'X': tables.application},
@@ -72,10 +74,10 @@ def train(pipeline_name, dev_mode):
                   }
 
     pipeline = PIPELINES[pipeline_name](config=cfg.SOLUTION_CONFIG, train_mode=True)
-    pipeline.clean_cache()
+    # pipeline.clean_cache()
     logger.info('Start pipeline fit and transform')
     pipeline.fit_transform(train_data)
-    pipeline.clean_cache()
+    # pipeline.clean_cache()
 
 
 def evaluate(pipeline_name, dev_mode):
@@ -108,10 +110,10 @@ def evaluate(pipeline_name, dev_mode):
                  }
 
     pipeline = PIPELINES[pipeline_name](config=cfg.SOLUTION_CONFIG, train_mode=False)
-    pipeline.clean_cache()
+    # pipeline.clean_cache()
     logger.info('Start pipeline transform')
     output = pipeline.transform(eval_data)
-    pipeline.clean_cache()
+    # pipeline.clean_cache()
 
     y_pred = output['prediction']
 
@@ -140,10 +142,10 @@ def predict(pipeline_name, dev_mode, submit_predictions):
 
     pipeline = PIPELINES[pipeline_name](config=cfg.SOLUTION_CONFIG, train_mode=False)
 
-    pipeline.clean_cache()
+    # pipeline.clean_cache()
     logger.info('Start pipeline transform')
     output = pipeline.transform(test_data)
-    pipeline.clean_cache()
+    # pipeline.clean_cache()
     y_pred = output['prediction']
 
     if not dev_mode:
@@ -151,7 +153,7 @@ def predict(pipeline_name, dev_mode, submit_predictions):
         submission = create_submission(tables.test_set, y_pred)
 
         logger.info('verifying submission...')
-        sample_submission = pd.read_csv(params.sample_submission_filepath)
+        sample_submission = pd.read_csv('./' + params.sample_submission_filepath)
         verify_submission(submission, sample_submission)
 
         submission_filepath = os.path.join(params.experiment_directory, 'submission.csv')
@@ -220,8 +222,9 @@ def train_evaluate_cv_tuning(pipeline_name, model_level, dev_mode):
 
 def train_evaluate_cv_one_run(pipeline_name, model_level, config, dev_mode, tunable_mode=False):
     if bool(params.clean_experiment_directory_before_training) and os.path.isdir(params.experiment_directory):
-        logger.info('Cleaning experiment_directory...')
-        shutil.rmtree(params.experiment_directory)
+        if os.path.exists(params.experiment_directory):
+            logger.info('Cleaning experiment_directory...')
+            # shutil.rmtree(params.experiment_directory)
 
     if model_level == 'first':
         tables = _read_data(dev_mode)
@@ -265,8 +268,10 @@ def train_evaluate_cv_one_run(pipeline_name, model_level, config, dev_mode, tuna
 
 def train_evaluate_predict_cv(pipeline_name, model_level, dev_mode, submit_predictions):
     if bool(params.clean_experiment_directory_before_training) and os.path.isdir(params.experiment_directory):
-        logger.info('Cleaning experiment_directory...')
-        shutil.rmtree(params.experiment_directory)
+        if os.path.exists(params.experiment_directory):
+            logger.info('Cleaning experiment_directory...')
+            # shutil.rmtree(params.experiment_directory)
+
 
     if model_level == 'first':
         tables = _read_data(dev_mode)
@@ -334,7 +339,7 @@ def train_evaluate_predict_cv(pipeline_name, model_level, dev_mode, submit_predi
 
     if not dev_mode:
         logger.info('verifying submission...')
-        sample_submission = pd.read_csv(params.sample_submission_filepath)
+        sample_submission = pd.read_csv('./' + params.sample_submission_filepath)
         verify_submission(test_prediction_aggregated, sample_submission)
 
         if submit_predictions and params.kaggle_api:
@@ -395,30 +400,28 @@ def _read_data(dev_mode):
     raw_data = {}
 
     logger.info('Reading application_train ...')
-    application_train = pd.read_csv(params.train_filepath, nrows=nrows)
+    logger.info('params.train_filepath:' + params.train_filepath)
+    application_train = pd.read_csv('./' + params.train_filepath, nrows=nrows)
     logger.info("Reading application_test ...")
-    application_test = pd.read_csv(params.test_filepath, nrows=nrows)
-    raw_data['application'] = pd.concat([application_train, application_test],
-                                        sort=False).drop(cfg.TARGET_COLUMNS, axis='columns')
+    application_test = pd.read_csv('./' + params.test_filepath, nrows=nrows)
+    raw_data['application'] = pd.concat([application_train, application_test], sort=False).drop(cfg.TARGET_COLUMNS, axis='columns')
     raw_data['train_set'] = pd.DataFrame(application_train[cfg.ID_COLUMNS + cfg.TARGET_COLUMNS])
     raw_data['test_set'] = pd.DataFrame(application_test[cfg.ID_COLUMNS])
 
     logger.info("Reading bureau ...")
-    raw_data['bureau'] = pd.read_csv(params.bureau_filepath, nrows=nrows_bureau)
+    raw_data['bureau'] = pd.read_csv('./' + params.bureau_filepath, nrows=nrows_bureau)
     logger.info("Reading credit_card_balance ...")
-    raw_data['credit_card_balance'] = pd.read_csv(params.credit_card_balance_filepath, nrows=nrows_credit_card_balance)
+    raw_data['credit_card_balance'] = pd.read_csv('./' + params.credit_card_balance_filepath, nrows=nrows_credit_card_balance)
     logger.info("Reading pos_cash_balance ...")
-    raw_data['pos_cash_balance'] = pd.read_csv(params.POS_CASH_balance_filepath, nrows=nrows_pos_cash_balance)
+    raw_data['pos_cash_balance'] = pd.read_csv('./' + params.POS_CASH_balance_filepath, nrows=nrows_pos_cash_balance)
     logger.info("Reading previous_application ...")
-    raw_data['previous_application'] = pd.read_csv(params.previous_application_filepath,
-                                                   nrows=nrows_previous_applications)
+    raw_data['previous_application'] = pd.read_csv('./' + params.previous_application_filepath, nrows=nrows_previous_applications)
     logger.info("Reading bureau_balance ...")
-    raw_data['bureau_balance'] = pd.read_csv(params.bureau_balance_filepath, nrows=nrows_bureau_balance)
+    raw_data['bureau_balance'] = pd.read_csv('./' + params.bureau_balance_filepath, nrows=nrows_bureau_balance)
     raw_data['bureau_balance'] = raw_data['bureau_balance'].merge(raw_data['bureau'][['SK_ID_CURR', 'SK_ID_BUREAU']],
                                                                   on='SK_ID_BUREAU', how='right')
     logger.info("Reading installments_payments ...")
-    raw_data['installments_payments'] = pd.read_csv(params.installments_payments_filepath,
-                                                    nrows=nrows_installments_payments)
+    raw_data['installments_payments'] = pd.read_csv('./' + params.installments_payments_filepath, nrows=nrows_installments_payments)
     logger.info("Reading Done!!")
     return AttrDict(raw_data)
 
@@ -469,9 +472,9 @@ def _fold_fit_evaluate_predict_loop(train_data_split, valid_data_split, test, ta
         raise NotImplementedError
 
     logger.info('Start pipeline transform on test')
-    pipeline.clean_cache()
+    # pipeline.clean_cache()
     output_test = pipeline.transform(test_data)
-    pipeline.clean_cache()
+    # pipeline.clean_cache()
     y_test_pred = output_test.get('prediction', output_test.get('predicted', None))
 
     train_out_of_fold_prediction_chunk = valid_data_split[cfg.ID_COLUMNS]
@@ -550,16 +553,16 @@ def _fold_fit_evaluate_loop(train_data_split, valid_data_split, tables, fold_id,
                                         suffix='_fold_{}'.format(fold_id))
 
     logger.info('Start pipeline fit and transform on train')
-    pipeline.clean_cache()
+    # pipeline.clean_cache()
     pipeline.fit_transform(train_data)
-    pipeline.clean_cache()
+    # pipeline.clean_cache()
 
     pipeline = PIPELINES[pipeline_name](config=config, train_mode=False,
                                         suffix='_fold_{}'.format(fold_id))
     logger.info('Start pipeline transform on valid')
-    pipeline.clean_cache()
+    # pipeline.clean_cache()
     output_valid = pipeline.transform(valid_data)
-    pipeline.clean_cache()
+    # pipeline.clean_cache()
 
     y_valid_pred = output_valid.get('prediction', output_valid.get('predicted', None))
     y_valid_true = valid_data_split[cfg.TARGET_COLUMNS].values
