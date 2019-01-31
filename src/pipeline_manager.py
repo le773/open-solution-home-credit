@@ -358,7 +358,8 @@ def _read_data(dev_mode):
         nrows = cfg.DEV_SAMPLE_SIZE
         logger.info('running in "dev-mode". Sample size is: {}'.format(cfg.DEV_SAMPLE_SIZE))
     else:
-        nrows = None
+        nrows = 10000
+    nrows = 20000
 
     if any([parameter_eval(params.use_bureau),
             parameter_eval(params.use_bureau_aggregations)]):

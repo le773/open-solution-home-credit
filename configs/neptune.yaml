@@ -72,8 +72,8 @@ parameters:
 
 # Feature Selection
   use_application: True
-  use_bureau: True
-  use_bureau_balance: True
+  use_bureau: False
+  use_bureau_balance: False
   use_credit_card_balance: False
   use_installments_payments: False
   use_pos_cash_balance: False

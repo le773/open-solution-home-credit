@@ -13,6 +13,7 @@ from steppy.utils import get_logger
 
 from .utils import parallel_apply, safe_div, flatten_list
 
+
 logger = get_logger()
 
 
@@ -146,8 +147,10 @@ class GroupbyAggregateDiffs(BaseTransformer):
 
     def fit(self, main_table, **kwargs):
         for groupby_cols, specs in self.groupby_aggregations:
+            logger.info('GroupbyAggregateDiffs groupby_cols:' + groupby_cols + ' ...')
             group_object = main_table.groupby(groupby_cols)
             for select, agg in specs:
+                logger.info('GroupbyAggregateDiffs select:' + select + ' , agg:' + agg + ' ...')
                 groupby_aggregate_name = self._create_colname_from_specs(groupby_cols, select, agg)
                 group_features = group_object[select].agg(agg).reset_index() \
                     .rename(index=str,
@@ -317,6 +320,7 @@ class ApplicationFeatures(BasicHandCraftedFeatures):
                                              ]
 
     def fit(self, application, **kwargs):
+        logger.info('ApplicationFeatures fit ...')
         application['annuity_income_percentage'] = application['AMT_ANNUITY'] / application['AMT_INCOME_TOTAL']
         application['car_to_birth_ratio'] = application['OWN_CAR_AGE'] / application['DAYS_BIRTH']
         application['car_to_employ_ratio'] = application['OWN_CAR_AGE'] / application['DAYS_EMPLOYED']
@@ -949,6 +953,7 @@ class InstallmentPaymentsFeatures(BasicHandCraftedFeatures):
         self.features = None
 
     def fit(self, installments, **kwargs):
+        logger.info('InstallmentPaymentsFeatures fit ...')
         installments['installment_paid_late_in_days'] = installments['DAYS_ENTRY_PAYMENT'] - installments[
             'DAYS_INSTALMENT']
         installments['installment_paid_late'] = (installments['installment_paid_late_in_days'] > 0).astype(int)

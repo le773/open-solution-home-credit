@@ -22,6 +22,16 @@ from .utils import get_logger
 logger = get_logger()
 ctx = neptune.Context()
 
+# class IdentityOperation(BaseTransformer):
+#     """Transformer that performs identity operation, f(x)=x."""
+#
+#     def transform(self, **kwargs):
+#         return kwargs
+#
+#     def persist(self, filepath):
+#         logger.info('"IdentityOperation" is not persistable.')
+#         pass
+
 
 class XGBoost(BaseTransformer):
     def __init__(self, **params):

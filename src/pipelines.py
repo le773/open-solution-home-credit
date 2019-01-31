@@ -6,7 +6,9 @@ from sklearn.naive_bayes import BernoulliNB
 from sklearn.svm import SVC
 
 from . import pipeline_blocks as blocks
+from steppy.utils import get_logger
 
+logger = get_logger()
 
 def light_gbm(config, train_mode, suffix=''):
     if train_mode:
@@ -17,7 +19,7 @@ def light_gbm(config, train_mode, suffix=''):
         persist_output = False
         cache_output = True
         load_persisted_output = False
-
+    logger.info('light_gbm feature_extraction ...')
     features = blocks.feature_extraction(config,
                                          train_mode,
                                          suffix,

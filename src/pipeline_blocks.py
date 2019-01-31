@@ -8,7 +8,9 @@ from . import feature_extraction as fe
 from . import data_cleaning as dc
 from .models import get_sklearn_classifier, XGBoost, LightGBM, CatBoost, NeuralNetwork
 from .utils import Normalizer, MinMaxScaler
+from steppy.utils import get_logger
 
+logger = get_logger()
 
 def classifier_light_gbm(features, config, train_mode, suffix, **kwargs):
     model_name = 'light_gbm{}'.format(suffix)
@@ -186,7 +188,7 @@ def feature_extraction(config, train_mode, suffix, **kwargs):
                                                                          previous_application_cleaned,
                                                                          config,
                                                                          **kwargs)
-
+    logger.info('feature_extraction _application_groupby_agg ...')
     application_agg = _application_groupby_agg(application_cleaned, config, **kwargs)
     bureau_agg = _bureau_groupby_agg(bureau_cleaned, config, **kwargs)
     credit_card_balance_agg = _credit_card_balance_groupby_agg(credit_card_balance_cleaned, config, **kwargs)
